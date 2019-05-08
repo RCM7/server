@@ -21,7 +21,6 @@
 
 import $ from 'jquery'
 
-import Config from './OC/config'
 import {generateUrl} from './OC/routing'
 import OC from './OC'
 
@@ -40,7 +39,7 @@ const keepSessionAlive = () => {
  */
 const getInterval = () => {
 	let interval = NaN
-	if (Config.session_lifetime) {
+	if (OC.config.session_lifetime) {
 		interval = Math.floor(OC.config.session_lifetime / 2)
 	}
 
@@ -61,6 +60,7 @@ const getInterval = () => {
 export const initSessionHeartBeat = () => {
 	if (!keepSessionAlive()) {
 		console.info('session heartbeat disabled')
+		return;
 	}
 
 	setInterval(() => {
