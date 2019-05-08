@@ -25,8 +25,11 @@ import './Polyfill/index'
 import './globals'
 import $ from 'jquery'
 import './jquery/index'
+import {initCore} from './init'
 import {registerAppsSlideToggle} from './OC/apps'
 
 $(document).ready(function () {
+	initCore();
+
 	registerAppsSlideToggle();
 });

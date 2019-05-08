@@ -46,6 +46,7 @@ import {
 	showMenu,
 	unregisterMenu,
 } from './menu'
+import {initCore} from '../init'
 import {isUserAdmin} from './admin'
 import L10N from './l10n'
 import {
@@ -82,6 +83,13 @@ export default {
 	PERMISSION_SHARE,
 	PERMISSION_UPDATE,
 	TAG_FAVORITE,
+
+	/**
+	 * Used for unit testing only
+	 *
+	 * @todo remove once we have a new test framework https://github.com/orgs/nextcloud/projects/31#card-21214338
+	 */
+	_initCore: initCore,
 
 	Apps,
 	AppConfig,

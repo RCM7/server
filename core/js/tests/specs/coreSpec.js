@@ -21,7 +21,7 @@
 
 describe('Core base tests', function() {
 	afterEach(function() {
-		// many tests call window.initCore so need to unregister global events
+		// many tests call OC._initCore so need to unregister global events
 		// ideally in the future we'll need a window.unloadCore() function
 		$(document).off('ajaxError.main');
 		$(document).off('unload.main');
@@ -399,7 +399,7 @@ describe('Core base tests', function() {
 				session_keepalive: true,
 				session_lifetime: 300
 			};
-			window.initCore();
+			OC._initCore();
 			expect(routeStub.calledWith('/csrftoken')).toEqual(true);
 
 			expect(counter).toEqual(0);
@@ -426,7 +426,7 @@ describe('Core base tests', function() {
 				session_keepalive: false,
 				session_lifetime: 300
 			};
-			window.initCore();
+			OC._initCore();
 			expect(routeStub.notCalled).toEqual(true);
 
 			expect(counter).toEqual(0);
@@ -443,7 +443,7 @@ describe('Core base tests', function() {
 				session_keepalive: true,
 				session_lifetime: 5
 			};
-			window.initCore();
+			OC._initCore();
 			expect(setIntervalStub.getCall(0).args[1]).toEqual(60 * 1000);
 			setIntervalStub.reset();
 
@@ -451,7 +451,7 @@ describe('Core base tests', function() {
 				session_keepalive: true,
 				session_lifetime: 48 * 3600
 			};
-			window.initCore();
+			OC._initCore();
 			expect(setIntervalStub.getCall(0).args[1]).toEqual(24 * 3600 * 1000);
 
 			setIntervalStub.restore();
@@ -568,11 +568,11 @@ describe('Core base tests', function() {
 			$(document).off('ajaxError');
 		});
 		it('Sets up menu toggle', function() {
-			window.initCore();
+			OC._initCore();
 			expect($navigation.hasClass('menu')).toEqual(true);
 		});
 		it('Clicking menu toggle toggles navigation in', function() {
-			window.initCore();
+			OC._initCore();
 			// fore show more apps icon since otherwise it would be hidden since no icons are available
 			clock.tick(1 * 1000);
 			$('#more-apps').show();
@@ -1094,7 +1094,7 @@ describe('Core base tests', function() {
 			// unstub the error processing method
 			ajaxErrorStub = OC._processAjaxError;
 			ajaxErrorStub.restore();
-			window.initCore();
+			OC._initCore();
 		});
 		afterEach(function() {
 			OC.currentUser = oldCurrentUser;
@@ -1208,7 +1208,7 @@ describe('Core base tests', function() {
 			_.now.restore();
 
 			// Remove the event handler for the resize event added to the window
-			// due to calling window.initCore() when there is an #app-navigation
+			// due to calling OC._initCore() when there is an #app-navigation
 			// element.
 			$(window).off('resize');
 
@@ -1218,7 +1218,7 @@ describe('Core base tests', function() {
 		it('is enabled on a narrow screen', function() {
 			viewport.set(480);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapConstructorStub.calledOnce).toBe(true);
 			expect(snapperStub.enable.calledOnce).toBe(true);
@@ -1227,7 +1227,7 @@ describe('Core base tests', function() {
 		it('is disabled when disallowing the gesture on a narrow screen', function() {
 			viewport.set(480);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.calledOnce).toBe(true);
 			expect(snapperStub.disable.called).toBe(false);
@@ -1243,7 +1243,7 @@ describe('Core base tests', function() {
 		it('is not disabled again when disallowing the gesture twice on a narrow screen', function() {
 			viewport.set(480);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.calledOnce).toBe(true);
 			expect(snapperStub.disable.called).toBe(false);
@@ -1265,7 +1265,7 @@ describe('Core base tests', function() {
 		it('is enabled when allowing the gesture after disallowing it on a narrow screen', function() {
 			viewport.set(480);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.calledOnce).toBe(true);
 			expect(snapperStub.disable.called).toBe(false);
@@ -1287,7 +1287,7 @@ describe('Core base tests', function() {
 		it('is not enabled again when allowing the gesture twice after disallowing it on a narrow screen', function() {
 			viewport.set(480);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.calledOnce).toBe(true);
 			expect(snapperStub.disable.called).toBe(false);
@@ -1315,7 +1315,7 @@ describe('Core base tests', function() {
 		it('is disabled on a wide screen', function() {
 			viewport.set(1280);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapConstructorStub.calledOnce).toBe(true);
 			expect(snapperStub.enable.called).toBe(false);
@@ -1324,7 +1324,7 @@ describe('Core base tests', function() {
 		it('is not disabled again when disallowing the gesture on a wide screen', function() {
 			viewport.set(1280);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.called).toBe(false);
 			expect(snapperStub.disable.calledOnce).toBe(true);
@@ -1339,7 +1339,7 @@ describe('Core base tests', function() {
 		it('is not enabled when allowing the gesture after disallowing it on a wide screen', function() {
 			viewport.set(1280);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.called).toBe(false);
 			expect(snapperStub.disable.calledOnce).toBe(true);
@@ -1360,7 +1360,7 @@ describe('Core base tests', function() {
 		it('is enabled when resizing to a narrow screen', function() {
 			viewport.set(1280);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.called).toBe(false);
 			expect(snapperStub.disable.calledOnce).toBe(true);
@@ -1381,7 +1381,7 @@ describe('Core base tests', function() {
 		it('is not enabled when resizing to a narrow screen after disallowing the gesture', function() {
 			viewport.set(1280);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.called).toBe(false);
 			expect(snapperStub.disable.calledOnce).toBe(true);
@@ -1407,7 +1407,7 @@ describe('Core base tests', function() {
 		it('is enabled when resizing to a narrow screen after disallowing the gesture and allowing it', function() {
 			viewport.set(1280);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.called).toBe(false);
 			expect(snapperStub.disable.calledOnce).toBe(true);
@@ -1438,7 +1438,7 @@ describe('Core base tests', function() {
 		it('is enabled when allowing the gesture after disallowing it and resizing to a narrow screen', function() {
 			viewport.set(1280);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.called).toBe(false);
 			expect(snapperStub.disable.calledOnce).toBe(true);
@@ -1469,7 +1469,7 @@ describe('Core base tests', function() {
 		it('is disabled when disallowing the gesture after disallowing it, resizing to a narrow screen and allowing it', function() {
 			viewport.set(1280);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.called).toBe(false);
 			expect(snapperStub.disable.calledOnce).toBe(true);
@@ -1506,7 +1506,7 @@ describe('Core base tests', function() {
 		it('is disabled when resizing to a wide screen', function() {
 			viewport.set(480);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.calledOnce).toBe(true);
 			expect(snapperStub.disable.called).toBe(false);
@@ -1529,7 +1529,7 @@ describe('Core base tests', function() {
 		it('is not disabled again when disallowing the gesture after resizing to a wide screen', function() {
 			viewport.set(480);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.calledOnce).toBe(true);
 			expect(snapperStub.disable.called).toBe(false);
@@ -1558,7 +1558,7 @@ describe('Core base tests', function() {
 		it('is not enabled when allowing the gesture after disallowing it, resizing to a narrow screen and resizing to a wide screen', function() {
 			viewport.set(1280);
 
-			window.initCore();
+			OC._initCore();
 
 			expect(snapperStub.enable.called).toBe(false);
 			expect(snapperStub.disable.calledOnce).toBe(true);
