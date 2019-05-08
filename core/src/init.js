@@ -23,144 +23,12 @@ import _ from 'underscore'
 import $ from 'jquery'
 import moment from 'moment'
 
+import {initSessionHeartBeat} from './session-heartbeat'
 import OC from './OC/index'
+import {setUp as setUpContactsMenu} from './components/ContactsMenu'
+import {setUp as setUpMainMenu} from './components/MainMenu'
+import {setUp as setUpUserMenu} from './components/UserMenu'
 import PasswordConfirmation from './OC/password-confirmation'
-
-/**
- * Calls the server periodically to ensure that session and CSRF
- * token doesn't expire
- */
-const initSessionHeartBeat = () => {
-	// interval in seconds
-	let interval = NaN
-	if (OC.config.session_lifetime) {
-		interval = Math.floor(OC.config.session_lifetime / 2)
-	}
-	interval = isNaN(interval) ? 900 : interval
-
-	// minimum one minute
-	interval = Math.max(60, interval)
-	// max interval in seconds set to 24 hours
-	interval = Math.min(24 * 3600, interval)
-
-	const url = OC.generateUrl('/csrftoken')
-	setInterval(() => {
-		$.ajax(url).then(resp => {
-			oc_requesttoken = resp.token
-			OC.requestToken = resp.token
-		}).fail(e => {
-			console.error('session heartbeat failed', e)
-		})
-	}, interval * 1000)
-}
-
-/**
- * Set up the main menu toggle to react to media query changes.
- * If the screen is small enough, the main menu becomes a toggle.
- * If the screen is bigger, the main menu is not a toggle any more.
- */
-const setupMainMenu = () => {
-	// init the more-apps menu
-	OC.registerMenu($('#more-apps > a'), $('#navigation'))
-
-	// toggle the navigation
-	const $toggle = $('#header .header-appname-container')
-	const $navigation = $('#navigation')
-	const $appmenu = $('#appmenu')
-
-	// init the menu
-	OC.registerMenu($toggle, $navigation)
-	$toggle.data('oldhref', $toggle.attr('href'))
-	$toggle.attr('href', '#')
-	$navigation.hide()
-
-	// show loading feedback on more apps list
-	$navigation.delegate('a', 'click', event => {
-		let $app = $(event.target)
-		if (!$app.is('a')) {
-			$app = $app.closest('a')
-		}
-		if (event.which === 1 && !event.ctrlKey && !event.metaKey) {
-			$app.find('svg').remove()
-			$app.find('div').remove() // prevent odd double-clicks
-			// no need for theming, loader is already inverted on dark mode
-			// but we need it over the primary colour
-			$app.prepend($('<div/>').addClass('icon-loading-small'))
-		} else {
-			// Close navigation when opening app in
-			// a new tab
-			OC.hideMenus(() => false)
-		}
-	})
-
-	$navigation.delegate('a', 'mouseup', event => {
-		if (event.which === 2) {
-			// Close navigation when opening app in
-			// a new tab via middle click
-			OC.hideMenus(() => false)
-		}
-	})
-
-	// show loading feedback on visible apps list
-	$appmenu.delegate('li:not(#more-apps) > a', 'click', event => {
-		let $app = $(event.target)
-		if (!$app.is('a')) {
-			$app = $app.closest('a')
-		}
-		if (event.which === 1 && !event.ctrlKey && !event.metaKey && $app.parent('#more-apps').length === 0) {
-			$app.find('svg').remove()
-			$app.find('div').remove() // prevent odd double-clicks
-			$app.prepend($('<div/>').addClass(
-				OCA.Theming && OCA.Theming.inverted
-					? 'icon-loading-small'
-					: 'icon-loading-small-dark'
-			))
-		} else {
-			// Close navigation when opening app in
-			// a new tab
-			OC.hideMenus(() => false)
-		}
-	})
-}
-
-const setupUserMenu = () => {
-	const $menu = $('#header #settings')
-
-	// show loading feedback
-	$menu.delegate('a', 'click', event => {
-		let $page = $(event.target)
-		if (!$page.is('a')) {
-			$page = $page.closest('a')
-		}
-		if (event.which === 1 && !event.ctrlKey && !event.metaKey) {
-			$page.find('img').remove()
-			$page.find('div').remove() // prevent odd double-clicks
-			$page.prepend($('<div/>').addClass('icon-loading-small'))
-		} else {
-			// Close navigation when opening menu entry in
-			// a new tab
-			OC.hideMenus(() => false)
-		}
-	})
-
-	$menu.delegate('a', 'mouseup', event => {
-		if (event.which === 2) {
-			// Close navigation when opening app in
-			// a new tab via middle click
-			OC.hideMenus(() => false)
-		}
-	})
-}
-
-/**
- * @todo move to contacts menu code https://github.com/orgs/nextcloud/projects/31#card-21213129
- */
-const setupContactsMenu = () => {
-	new OC.ContactsMenu({
-		el: $('#contactsmenu .menu'),
-		trigger: $('#contactsmenu .menutoggle')
-	})
-}
 
 const resizeMenu = () => {
 	const appList = $('#appmenu li')
@@ -286,12 +154,7 @@ export const initCore = () => {
 		OC._processAjaxError(request)
 	})
 
-	// session heartbeat (defaults to enabled)
-	if (typeof (OC.config.session_keepalive) === 'undefined' ||
-		!!OC.config.session_keepalive) {
-
-		initSessionHeartBeat()
-	}
+	initSessionHeartBeat();
 
 	OC.registerMenu($('#expand'), $('#expanddiv'), false, true)
 
@@ -306,9 +169,9 @@ export const initCore = () => {
 		OC.hideMenus()
 	})
 
-	setupMainMenu()
-	setupUserMenu()
-	setupContactsMenu()
+	setUpMainMenu()
+	setUpUserMenu()
+	setUpContactsMenu()
 
 	// move triangle of apps dropdown to align with app name triangle
 	// 2 is the additional offset between the triangles
